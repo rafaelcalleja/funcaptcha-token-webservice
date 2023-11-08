@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "funcaptcha-solver"
+version = "0.0.1"
+description = "FunCaptcha Solver"
+homepage  = "https://github.com/"
+license = "https://github.com/"
+authors = [
+    "Rafael Calleja"
+]
+readme = "README.md"
+packages = [{ include = "app" }]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+uvicorn = { extras = ["standard"], version = "^0.18.2" }
+gunicorn = "^20.1.0"
+tqdm = "^4.64.1"
+python-multipart = "^0.0.5"
+fastapi = "^0.95.1"
+llvmlite = "^0.39.1"
+numba = "^0.56.4"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

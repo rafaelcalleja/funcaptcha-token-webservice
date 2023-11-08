@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  openai-whisper-asr-webservice:
+    container_name: openai-whisper-asr-webservice
+    image: ${WHISPER_IMAGE:-onerahmet/openai-whisper-asr-webservice}:${WHISPER_TAG:-latest}
+    ports:
+      - ${PORT:-9000}:9000
+    restart: unless-stopped
+    environment:
+      ASR_MODEL: ${ASR_MODEL:-tiny}
+      ASR_ENGINE: ${ASR_ENGINE:-openai_whisper}
+    volumes:
+      - cache-whisper:/root/.cache/whisper
+
+volumes:
+  cache-whisper:

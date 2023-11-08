@@ -16,10 +16,11 @@ def solve_captcha():
 		error = answer["error"]
 		if error == None:
 			answer["bad_captchas"] = bad_captchas
-			return captcha_token
+			return answer
 		if "not_supported" in error:
 			return "Site not supported / does not have audio challenges"
 		if "too high" in error:
+			print(answer)
 			return "Ratelimited"
 		else:
 			bad_captchas += 1
