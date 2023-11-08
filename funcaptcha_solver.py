@@ -1,12 +1,55 @@
+from abc import abstractmethod, ABC
+
+import whisper
+import re
+
 import requests, random, string, time, json
-import speech_recognition as sr
+
+
+class AudioTranscriber(ABC):
+
+    @abstractmethod
+    def transcribe(self, audio_file: str , *args, **kwargs) -> str:
+        pass
+
+
+class WhisperOpenAI(AudioTranscriber):
+
+    def __init__(self, model: str = 'tiny'):
+        self.model = whisper.load_model(model)
+
+    def transcribe(self, audio_file: str, *args, **kwargs) -> str:
+        audio = whisper.load_audio("audio.wav")
+        audio = whisper.pad_or_trim(audio)
+
+        mel = whisper.log_mel_spectrogram(audio).to(self.model.device)
+        _, probs = self.model.detect_language(mel)
+
+        options = whisper.DecodingOptions()
+        result = whisper.decode(self.model, mel, options)
+
+        return result.text
+
+
+class WhisperWebService(AudioTranscriber):
+
+    def __init__(self, endpoint: str):
+        self.endpoint = endpoint
+
+    def transcribe(self, audio_file: str, *args, **kwargs) -> str:
+        with open(audio_file, 'rb') as f:
+            files = {'audio_file': f}
+            response = requests.post(self.endpoint, files=files)
+
+        return response.text
+
 
 class funcaptcha:
 
-    def __init__(self, public_key, site):
+    def __init__(self, public_key, site, transcriber: AudioTranscriber, proxies: dict = None, url: str ="https://api.funcaptcha.com"):
         self.session = requests.Session()
         self.user_agent = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.60 Safari/537.36"
-        self.url = "https://api.funcaptcha.com"
+        self.url = url
         self.public_key = public_key
         self.site = site
         self.start_time = time.time()
@@ -17,6 +60,8 @@ class funcaptcha:
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "User-Agent": self.user_agent
         }
+        self.transcriber = transcriber
+        self.proxies = proxies
 
     def get_session_token(self):
         headers = {
@@ -35,6 +80,7 @@ class funcaptcha:
         }
         r = self.session.post(
             self.url + "/fc/gt2/public_key/{}".format(self.public_key),
+            proxies=self.proxies,
             headers = headers,
             data = data
         )
@@ -44,15 +90,17 @@ class funcaptcha:
 
     def get_game_token(self, session_token):
         data = {
-            "lang": "",
-            "sid": "eu-west-1",
-            "analytics_tier": "40",
-            "render_type": "canvas",
             "token": session_token,
-            "data[status]": "init"
+            "sid": "eu-west-1",
+            "render_type": "canvas",
+            "lang": "",
+            "isAudioGame": 'true',
+            "analytics_tier": "40",
+            'apiBreakerVersion': 'green'
         }
         r = self.session.post(
             self.url + "/fc/gfct/",
+            proxies=self.proxies,
             headers = self.headers,
             data = data
         )
@@ -72,6 +120,7 @@ class funcaptcha:
         }
         r = self.session.post(
             self.url + "/fc/a/",
+            proxies=self.proxies,
             headers = self.headers,
             data = data
         )
@@ -90,6 +139,7 @@ class funcaptcha:
         }
         r = self.session.post(
             self.url + "/fc/a/",
+            proxies=self.proxies,
             headers = self.headers,
             data = data
         )
@@ -104,6 +154,7 @@ class funcaptcha:
         }
         r = self.session.post(
             self.url + "/fc/get_audio/?session_token={}&analytics_tier=40&r=eu-west-1&game=0&language=en".format(session_token),
+            proxies=self.proxies,
             headers = self.headers,
             data = data
         )
@@ -121,21 +172,22 @@ class funcaptcha:
     
     def solve_captcha(self):
         try:
+            response = self.transcriber.transcribe("audio.wav")
+
+            text_reformed = re.sub('[^a-zA-Z\s]', '', response)
+
             temp_reformed = []
-            r = sr.Recognizer()
-            with sr.WavFile("audio.wav") as source:
-                r.adjust_for_ambient_noise(source)
-                audio = r.record(source, duration = 7)
-            response = r.recognize(audio, show_all = True)
-            
-            for text in response:
-                reformed_text = self.replace_resp(text["text"])
-                if len(reformed_text) == 7:
-                    if reformed_text.isdigit():
-                        temp_reformed.append(reformed_text)
-            if len(reformed_text) != 0:
-                response = self.most_frequent(temp_reformed)
-                return response
+
+            try:
+                temp_reformed = self.replace_resp(text_reformed)
+            except:
+                pass
+
+            if len(temp_reformed) != 7:
+                temp_reformed = [i for i in response if i.isdigit()]
+
+            if len(temp_reformed) == 7:
+                return ''.join(temp_reformed)
             self.bad_captchas += 1
             self.solve()
         except LookupError:
@@ -240,6 +292,7 @@ class funcaptcha:
         }
         r = self.session.post(
             self.url + "/fc/audio/",
+            proxies=self.proxies,
             headers = self.headers,
             data = data
         )
