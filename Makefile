@@ -1,17 +1,10 @@
 .EXPORT_ALL_VARIABLES:
 
-WHISPER_TAG ?= latest
-WHISPER_IMAGE ?= onerahmet/openai-whisper-asr-webservice:$(WHISPER_TAG)
-WHISPER_PORT ?= 9001
-
-ASR_MODEL ?= tiny
-ASR_ENGINE ?= openai_whisper
-
 DOCKER_TAG ?= latest
-DOCKER_IMAGE ?= rafaelcalleja/funcaptcha-solver:$(DOCKER_TAG)
+DOCKER_IMAGE ?= rafaelcalleja/funcaptcha-token:$(DOCKER_TAG)
 PORT ?= 9000
 
-SSH_CONTAINER ?= funcaptcha-solver-webservice
+SSH_CONTAINER ?= funcaptcha-token-webservice
 SSH_SHELL ?= /bin/bash
 
 .PHONY: run

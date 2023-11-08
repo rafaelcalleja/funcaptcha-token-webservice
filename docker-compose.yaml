@@ -1,33 +1,11 @@
 version: "3.7"
 services:
-  openai-whisper-asr-webservice:
-    container_name: openai-whisper-asr-webservice
-    image: ${WHISPER_IMAGE:-onerahmet/openai-whisper-asr-webservice:latest}
-    ports:
-      - ${WHISPER_PORT:-9001}:9000
-    restart: unless-stopped
-    environment:
-      ASR_MODEL: ${ASR_MODEL:-tiny}
-      ASR_ENGINE: ${ASR_ENGINE:-openai_whisper}
-    volumes:
-      - cache-pip:/root/.cache/pip
-      - cache-poetry:/root/.cache/poetry
-      - cache-whisper:/root/.cache/whisper
-      - cache-faster-whisper:/root/.cache/faster-whisper
-  funcaptcha-solver-webservice:
-    container_name: funcaptcha-solver-webservice
-    image: ${DOCKER_IMAGE:-rafaelcalleja/funcaptcha-solver:latest}
+  funcaptcha-token-webservice:
+    container_name: funcaptcha-token-webservice
+    image: ${DOCKER_IMAGE:-rafaelcalleja/funcaptcha-token:latest}
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - ${PORT:-9000}:9000
     restart: unless-stopped
-    environment:
-      WHISPER_WEBSERVICE_ENDPOINT: ${WHISPER_WEBSERVICE_ENDPOINT:-http://openai-whisper-asr-webservice:9000/asr}
-
-volumes:
-  cache-pip:
-  cache-poetry:
-  cache-whisper:
-  cache-faster-whisper:

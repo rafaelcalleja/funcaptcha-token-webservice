@@ -6,7 +6,7 @@ ENV POETRY_VENV=/app/.venv
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get -qq update \
     && apt-get -qq install --no-install-recommends \
-    ffmpeg \
+    ffmpeg nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m venv $POETRY_VENV \
