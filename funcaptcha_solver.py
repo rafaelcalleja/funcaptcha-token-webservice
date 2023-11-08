@@ -3,7 +3,7 @@ from abc import abstractmethod, ABC
 import whisper
 import re
 
-import requests, random, string, time, json
+import requests, random, string, time
 
 
 class AudioTranscriber(ABC):

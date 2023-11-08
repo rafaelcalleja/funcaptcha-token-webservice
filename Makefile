@@ -1,10 +1,21 @@
-WHISPER_IMAGE ?= onerahmet/openai-whisper-asr-webservice
+.EXPORT_ALL_VARIABLES:
+
 WHISPER_TAG ?= latest
+WHISPER_IMAGE ?= onerahmet/openai-whisper-asr-webservice:$(WHISPER_TAG)
+WHISPER_PORT ?= 9001
+
 ASR_MODEL ?= tiny
 ASR_ENGINE ?= openai_whisper
 
+DOCKER_TAG ?= latest
+DOCKER_IMAGE ?= rafaelcalleja/funcaptcha-solver:$(DOCKER_TAG)
+PORT ?= 9000
+
+SSH_CONTAINER ?= funcaptcha-solver-webservice
+SSH_SHELL ?= /bin/bash
+
 .PHONY: run
-run: build
+run:
 	DOCKER_IMAGE=$(DOCKER_IMAGE) docker compose up -d --force-recreate
 
 .PHONY: build
@@ -26,3 +37,5 @@ logs:
 push:
 	docker push $(DOCKER_IMAGE)
 
+ssh:
+	docker compose exec $(SSH_CONTAINER) $(SSH_SHELL)
