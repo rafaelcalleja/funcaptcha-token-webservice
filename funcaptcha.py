@@ -43,7 +43,7 @@ class funcaptcha:
             'user-agent': self.user_agent,
             'authority': urlparse(self.url).netloc,
             'accept': '*/*',
-            'accept-language': 'ru-RU,ru;q=0.9',
+            'accept-language': 'en-US,en;q=0.9',
             "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
             "origin": self.service_url,
             "referer": f"{self.service_url}/v2/{self.capi_version}/enforcement.fbfc14b0d793c6ef8359e0e4b4a91f67.html",

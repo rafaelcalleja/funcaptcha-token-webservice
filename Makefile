@@ -1,5 +1,7 @@
 .EXPORT_ALL_VARIABLES:
 
+DOCKER_BUILDKIT ?= 0
+
 DOCKER_TAG ?= latest
 DOCKER_IMAGE ?= rafaelcalleja/funcaptcha-token:$(DOCKER_TAG)
 PORT ?= 9000
